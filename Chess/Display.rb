@@ -9,12 +9,13 @@ class Display
   end
   
   def render
-    image = ["  0 1 2 3 4 5 6 7"]
+    image = ["  0 1 2 3 4 5 6 7"].colorize( :background => :light_black)
     (0..7).each do |i|
       row_image = "#{i} "
       (0..7).each do |j|
         pos = [i, j]
-        piece = @board[pos].to_s
+        piece_string = @board[pos].to_s
+        piece = (piece_string + " ")
         if @cursor.cursor_pos == pos
           color = nil
           if @cursor.selected
@@ -22,12 +23,11 @@ class Display
           else
             color = :light_blue
           end
-          piece = piece.strip.colorize(color: :white, background: color) + " "
         end
         
         row_image << piece
       end
-      image << row_image
+      image << row_image.colorize( :background => :light_black)
     end
     puts image.join("\n")
   end

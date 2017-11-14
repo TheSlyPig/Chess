@@ -2,10 +2,9 @@ require 'singleton'
 require 'byebug'
 
 class Piece
-  attr_reader :type, :color, :symbol
+  attr_reader :color, :symbol
   attr_accessor :pos
-  def initialize(type, board, pos, color = nil)
-    @type = type
+  def initialize(board, pos, color = nil)
     @board = board
     @pos = pos
     @color = color
@@ -19,10 +18,6 @@ class Piece
   
   def friendly?(other_piece)
     self.color == other_piece.color
-  end
-  
-  def to_s
-    self.type.to_s + " "
   end
   
 end
@@ -93,7 +88,7 @@ class NullPiece < Piece
   end
   
   def to_s
-    "- "
+    "-"
   end
   
   def moves
@@ -108,6 +103,10 @@ class Bishop < Piece
     [:diagonal]
   end
   
+  def to_s
+    "♝".colorize(self.color)
+  end
+  
 end
 
 class Rook < Piece
@@ -117,6 +116,10 @@ class Rook < Piece
     [:horizontal, :vertical]
   end
   
+  def to_s
+    "♜".colorize(self.color)
+  end
+  
 end
 
 class Queen < Piece
@@ -124,6 +127,10 @@ class Queen < Piece
   
   def move_dirs
     [:diagonal, :horizontal, :vertical]
+  end
+  
+  def to_s
+    "♛".colorize(self.color)
   end
 
 end
@@ -143,6 +150,10 @@ class King < Piece
     ]   
   end
   
+  def to_s
+    "♚".colorize(self.color)
+  end
+  
 end
 
 class Knight < Piece
@@ -159,11 +170,16 @@ class Knight < Piece
       [-1, -2]
     ]
   end
+  
+  def to_s
+    "♞".colorize(self.color)
+  end
+  
 end
 
 class Pawn < Piece
   
-  def initialize(type, board, pos, color = nil)
+  def initialize(board, pos, color = nil)
     @has_moved = false
     super
   end
@@ -222,5 +238,10 @@ class Pawn < Piece
   def up_or_down
     self.color == :white ? 1 : -1
   end
+  
+  def to_s
+    "♟".colorize(self.color)
+  end
+  
   
 end

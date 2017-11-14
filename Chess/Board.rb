@@ -10,14 +10,14 @@ class Board
   def make_special_row(color)
     top_bot = color == :white ? 0 : 7
     [
-      Rook.new(:R, self, [top_bot, 0], color), 
-      Knight.new(:H, self, [top_bot, 1], color), 
-      Bishop.new(:B, self, [top_bot, 2], color), 
-      Queen.new(:Q, self, [top_bot, 3], color), 
-      King.new(:K, self, [top_bot, 4], color), 
-      Bishop.new(:B, self, [top_bot, 5], color), 
-      Knight.new(:H, self, [top_bot, 6], color), 
-      Rook.new(:R, self, [top_bot, 7], color)
+      Rook.new(self, [top_bot, 0], color), 
+      Knight.new(self, [top_bot, 1], color), 
+      Bishop.new(self, [top_bot, 2], color), 
+      Queen.new(self, [top_bot, 3], color), 
+      King.new(self, [top_bot, 4], color), 
+      Bishop.new(self, [top_bot, 5], color), 
+      Knight.new(self, [top_bot, 6], color), 
+      Rook.new(self, [top_bot, 7], color)
     ]
   end
 
@@ -25,14 +25,14 @@ class Board
   def make_pawn_row(color)
     top_bot = color == :white ? 1 : 6
     [
-      Pawn.new(:P, self, [top_bot, 0], color), 
-      Pawn.new(:P, self, [top_bot, 1], color), 
-      Pawn.new(:P, self, [top_bot, 2], color), 
-      Pawn.new(:P, self, [top_bot, 3], color), 
-      Pawn.new(:P, self, [top_bot, 4], color), 
-      Pawn.new(:P, self, [top_bot, 5], color), 
-      Pawn.new(:P, self, [top_bot, 6], color), 
-      Pawn.new(:P, self, [top_bot, 7], color)
+      Pawn.new(self, [top_bot, 0], color), 
+      Pawn.new(self, [top_bot, 1], color), 
+      Pawn.new(self, [top_bot, 2], color), 
+      Pawn.new(self, [top_bot, 3], color), 
+      Pawn.new(self, [top_bot, 4], color), 
+      Pawn.new(self, [top_bot, 5], color), 
+      Pawn.new(self, [top_bot, 6], color), 
+      Pawn.new(self, [top_bot, 7], color)
     ]
   end
   
