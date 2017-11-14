@@ -16,7 +16,7 @@ class Piece
     [x + dx, y + dy]
   end
   
-  def self.friendly?(other_piece)
+  def friendly?(other_piece)
     self.color == other_piece.color
   end
   
@@ -65,7 +65,6 @@ end
 
 module SteppingPiece
   def moves
-    debugger
     possible_moves = []
     
     steps = self.get_steps
@@ -79,7 +78,9 @@ module SteppingPiece
     
     
     possible_moves.select do |move|
-      Board.in_bounds?(move) && @board[move].color != self.color
+      # debugger
+      other_piece = @board[move]
+      Board.in_bounds?(move) && !self.friendly?(other_piece)
     end
   end
 end
