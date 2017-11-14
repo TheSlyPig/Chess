@@ -65,15 +65,21 @@ end
 
 module SteppingPiece
   def moves
+    debugger
     possible_moves = []
     
     steps = self.get_steps
     
-    steps.select! do |step|
+    steps.each do |step|
       start_x, start_y = self.pos
       dx, dy = step
       new_pos = [start_x + dx, start_y + dy]
-      Board.in_bounds?(new_pos) && @board[new_pos].color != self.color
+      possible_moves << new_pos
+    end
+    
+    
+    possible_moves.select do |move|
+      Board.in_bounds?(move) && @board[move].color != self.color
     end
   end
 end
