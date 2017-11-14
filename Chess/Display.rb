@@ -9,7 +9,7 @@ class Display
   end
   
   def render
-    image = ["  0 1 2 3 4 5 6 7"].colorize( :background => :light_black)
+    image = ["  0 1 2 3 4 5 6 7 ".colorize( :background => :light_black)]
     (0..7).each do |i|
       row_image = "#{i} "
       (0..7).each do |j|

@@ -20,6 +20,20 @@ class Piece
     self.color == other_piece.color
   end
   
+  def move_into_check?(end_pos)
+    # debugger
+    board_dup = @board.deep_dup
+    board_dup.force_move_piece(self.pos, end_pos)
+    board_dup.in_check?(self.color)
+  end
+  
+  def valid_moves
+    self.moves.reject { |pos| move_into_check?(pos) }
+  end
+  
+  def dup_with_new_board(duped_board)
+    self.class.new(duped_board, self.pos, self.color)
+  end
 end
 
 module SlidingPiece
@@ -94,6 +108,11 @@ class NullPiece < Piece
   def moves
     []
   end
+  
+  def dup_with_new_board(duped_board)
+    NullPiece.instance
+  end
+  
 end
 
 class Bishop < Piece
@@ -184,6 +203,10 @@ class Pawn < Piece
     super
   end
   
+  def has_moved
+    @has_moved = true
+  end
+  
   def moves
     possible_moves = []
     
@@ -210,7 +233,7 @@ class Pawn < Piece
     #case for moving two spaces
     second_piece = @board[two_forward]
     if second_piece.is_a?(NullPiece) && Board.in_bounds?(two_forward) && first_piece.is_a?(NullPiece)
-      possible_forward_moves << two_forward 
+      possible_forward_moves << two_forward unless @has_moved == true
     end
     
     possible_forward_moves

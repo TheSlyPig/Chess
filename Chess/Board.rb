@@ -7,6 +7,7 @@ class InvalidMoveError < ChessError; end
 class Board
   # attr_reader :grid
   
+  
   def make_special_row(color)
     top_bot = color == :white ? 0 : 7
     [
@@ -38,7 +39,6 @@ class Board
   
   def initialize
     
-    # pawns = Array.new(8) { Piece.new(:P) }
     nil_row = Array.new(8) { NullPiece.instance }
     
     @grid = [
@@ -54,22 +54,40 @@ class Board
   end
   
   def move_piece(start_pos, end_pos)
-    
-    if self[start_pos].is_a?(NullPiece)
+    piece_to_move = self[start_pos]
+    if piece_to_move.is_a?(NullPiece)
       raise PieceNotFoundError
-    elsif !self.valid_move?(start_pos, end_pos)
+    elsif !piece_to_move.valid_moves.include?(end_pos)
       raise InvalidMoveError
     end
-    
-    piece = self[start_pos]
-    piece.pos = end_pos
-    self[end_pos] = piece
+    piece_to_move.pos = end_pos
+    self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
+    
+    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
     
   end
   
-  def valid_move?(start_pos, end_pos)
+  def force_move_piece(start_pos, end_pos)
+    piece_to_move = self[start_pos]
+    piece_to_move.pos = end_pos
+    self[end_pos] = piece_to_move
+    self[start_pos] = NullPiece.instance
+  end
+
+  
+  def deep_dup
+    board_dup = Board.new
     
+    dup_grid = @grid.map do |row| 
+      row.map do |piece|
+        piece.dup_with_new_board(board_dup)
+      end
+    end
+    
+    board_dup.grid = dup_grid
+    
+    board_dup    
   end
   
   def [](pos)
@@ -111,17 +129,17 @@ class Board
   
   def checkmate?(color)
     return false unless in_check?(color)
-    all_moves
+    moves = []
     
     @grid.each do |row|
       row.each do |piece|
         if piece.color == color
-         all_moves.concat(piece.moves)
+         moves.concat(piece.valid_moves)
         end
       end
     end
     
-    all_moves.any? { |move| valid_move?(move) }
+    moves.empty?
   end
   
   
@@ -130,4 +148,6 @@ class Board
     self[piece.pos] = piece
   end
   
+  protected
+  attr_writer :grid
 end
