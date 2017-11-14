@@ -69,8 +69,7 @@ class Board
   end
   
   def valid_move?(start_pos, end_pos)
-    #raise "Not Implemented"
-    true
+    
   end
   
   def [](pos)
@@ -109,6 +108,22 @@ class Board
     
     enemy_moves.include?(king_pos)    
   end
+  
+  def checkmate?(color)
+    return false unless in_check?(color)
+    all_moves
+    
+    @grid.each do |row|
+      row.each do |piece|
+        if piece.color == color
+         all_moves.concat(piece.moves)
+        end
+      end
+    end
+    
+    all_moves.any? { |move| valid_move?(move) }
+  end
+  
   
   #for debugging only
   def put_piece(piece)
