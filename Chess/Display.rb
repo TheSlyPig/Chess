@@ -43,7 +43,7 @@ class Display
       end
       image << row_image
     end
-    print image.join("\n")
+    puts image.join("\n")
   end
   
 end

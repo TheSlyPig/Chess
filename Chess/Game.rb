@@ -21,6 +21,8 @@ class Game
   
   def take_turn
     @currentplayer.play_turn
+  rescue InvalidMoveError
+    retry
   end
   
   def switch_players!
@@ -34,16 +36,9 @@ class Game
   
   def winner
     switch_players!
+    system("clear")
     @display.render
     puts "#{@currentplayer.name} has won!"
   end
-  
-  # def get_selection
-  #   loop do
-  #     system("clear")
-  #     @display.render
-  #     @currentplayer.play_turn
-  #   end
-  # end
   
 end
