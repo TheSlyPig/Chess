@@ -5,11 +5,13 @@ require 'colorize'
 class Display
   attr_reader :cursor
   attr_writer :selected_pos
+  attr_accessor :stored_moves
   
   def initialize(board)
     @board = board
-    @cursor = Cursor.new([0, 0], board)
+    @cursor = Cursor.new([0, 0], board, self)
     @selected_pos = nil
+    @stored_moves = nil
   end
   
   def render
@@ -23,10 +25,12 @@ class Display
         piece_string = @board[pos].to_s
         cursor_color = :light_black
 
-        possible_moves = @board[@selected_pos].valid_moves if @cursor.selected
+        if @cursor.selected && @stored_moves.nil?
+          @stored_moves = @board[@selected_pos].valid_moves
+        end
         
-        unless possible_moves.nil?
-          cursor_color = :green if possible_moves.include?(pos)
+        unless @stored_moves.nil?
+          cursor_color = :green if @stored_moves.include?(pos)
         end
         
         if @cursor.cursor_pos == pos

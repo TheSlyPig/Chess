@@ -1,4 +1,5 @@
 require "io/console"
+require_relative 'Display.rb'
 
 KEYMAP = {
   " " => :space,
@@ -35,10 +36,11 @@ class Cursor
   attr_reader :cursor_pos, :board
   attr_accessor :selected
 
-  def initialize(cursor_pos, board)
+  def initialize(cursor_pos, board, display)
     @cursor_pos = cursor_pos
     @board = board
     @selected = false
+    @display = display
   end
 
   def get_input
@@ -96,6 +98,7 @@ class Cursor
   
   def toggle_selected
     @selected = !@selected
+    @display.stored_moves = nil
   end
 
   def update_pos(diff)
