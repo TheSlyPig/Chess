@@ -12,6 +12,22 @@ class Pawn < Piece
     @has_moved = true
   end
 
+  def check_promotion
+    if self.color == :black
+      if self.pos[0] == 7
+        promote!
+      end
+    else
+      if self.pos[0] == 0
+        promote!
+      end
+    end
+  end
+
+  def promote!
+    @board[self.pos] = Queen.new(@board, self.pos, self.color)
+  end
+
   def moves
     possible_moves = []
     possible_moves += check_forward_moves

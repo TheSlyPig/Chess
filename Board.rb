@@ -42,7 +42,7 @@ class Board
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
 
-    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+    pawn_actions(piece_to_move)
   end
 
   def computer_move_piece(color)
@@ -57,7 +57,7 @@ class Board
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
 
-    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+    pawn_actions(piece_to_move)
     nil
   end
 
@@ -70,7 +70,7 @@ class Board
     piece_to_move.pos = end_pos
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
-    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+    pawn_actions(piece_to_move)
     nil
   end
 
@@ -117,7 +117,7 @@ class Board
     piece_to_move.pos = end_pos
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
-    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+    pawn_actions(piece_to_move)
   end
 
   def deep_dup
@@ -202,6 +202,13 @@ class Board
   protected
 
   attr_writer :grid
+
+  def pawn_actions(piece)
+    if piece.is_a?(Pawn)
+      piece.has_moved
+      piece.check_promotion
+    end
+  end
 
   def make_special_row(color)
     top_bot = color == :black ? 0 : 7
