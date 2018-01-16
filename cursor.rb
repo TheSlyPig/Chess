@@ -1,7 +1,7 @@
 require "io/console"
-require_relative 'Display.rb'
+require_relative 'display.rb'
 
-KEYMAP = {
+KEYMAP ||= {
   " " => :space,
   "h" => :left,
   "j" => :down,
@@ -24,7 +24,7 @@ KEYMAP = {
   "\u0003" => :ctrl_c,
 }
 
-MOVES = {
+MOVES ||= {
   left: [0, -1],
   right: [0, 1],
   up: [-1, 0],

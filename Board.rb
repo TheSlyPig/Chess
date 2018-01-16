@@ -1,4 +1,5 @@
 require 'byebug'
+require_relative 'pieces'
 
 class ChessError < StandardError; end
 class PieceNotFoundError < ChessError; end
@@ -7,7 +8,7 @@ class InvalidMoveError < ChessError; end
 class Board
 
   def make_special_row(color)
-    top_bot = color == :white ? 0 : 7
+    top_bot = color == :black ? 0 : 7
     [
       Rook.new(self, [top_bot, 0], color),
       Knight.new(self, [top_bot, 1], color),
@@ -22,7 +23,7 @@ class Board
 
 
   def make_pawn_row(color)
-    top_bot = color == :white ? 1 : 6
+    top_bot = color == :black ? 1 : 6
     [
       Pawn.new(self, [top_bot, 0], color),
       Pawn.new(self, [top_bot, 1], color),
@@ -40,14 +41,14 @@ class Board
     nil_row = Array.new(8) { NullPiece.instance }
 
     @grid = [
-      self.make_special_row(:white),
-      self.make_pawn_row(:white),
-      nil_row.dup,
-      nil_row.dup,
-      nil_row.dup,
-      nil_row.dup,
+      self.make_special_row(:black),
       self.make_pawn_row(:black),
-      self.make_special_row(:black)
+      nil_row.dup,
+      nil_row.dup,
+      nil_row.dup,
+      nil_row.dup,
+      self.make_pawn_row(:white),
+      self.make_special_row(:white)
     ]
   end
 
@@ -84,7 +85,6 @@ class Board
     end
 
     board_dup.grid = dup_grid
-
     board_dup
   end
 
@@ -104,24 +104,8 @@ class Board
   end
 
   def in_check?(color)
-    kings = []
-    @grid.each do |row|
-      row.each do |piece|
-        kings << piece if piece.is_a?(King)
-      end
-    end
-
-    king_pos = kings.select { |king| king.color == color }.first.pos
-
-    enemy_moves = []
-    @grid.each do |row|
-      row.each do |piece|
-        if piece.color != color
-          enemy_moves.concat(piece.moves)
-        end
-      end
-    end
-
+    king_pos = find_king(color)
+    enemy_moves = get_enemy_moves(color)
     enemy_moves.include?(king_pos)
   end
 
@@ -140,11 +124,31 @@ class Board
     moves.empty?
   end
 
+  private
 
-  #for debugging only
-  def put_piece(piece)
-    self[piece.pos] = piece
+  def find_king(color)
+    kings = []
+    @grid.each do |row|
+      row.each do |piece|
+        kings << piece if piece.is_a?(King)
+      end
+    end
+
+    return kings.select { |king| king.color == color }.first.pos
   end
+
+  def get_enemy_moves(color)
+    enemy_moves = []
+    @grid.each do |row|
+      row.each do |piece|
+        if piece.color != color
+          enemy_moves.concat(piece.moves)
+        end
+      end
+    end
+    return enemy_moves
+  end
+
 
   protected
   attr_writer :grid
