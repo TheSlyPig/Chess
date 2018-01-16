@@ -5,7 +5,7 @@ class Game
 
   def initialize(board)
     @board = board
-    @display = Display.new(@board)
+    @display = Display.new(@board, false)
     @player1 = HumanPlayer.new(board, @display, :white, "Player 1")
     @player2 = HumanPlayer.new(board, @display, :black, "Player 2")
     @currentplayer = @player1
@@ -13,14 +13,22 @@ class Game
 
   def setup
     reply = ""
-    until reply == "1" || reply == "2"
+    possible_answers = ["0", "1", "2", "quit", "q", "exit"]
+    until possible_answers.include?(reply)
       system("clear")
-      puts "How many players? (1/2)"
+      puts "How many players? (0/1/2/q)"
       reply = gets.chomp
     end
 
-    if reply == "1"
-      @player2 = ComputerPlayer.new(@board, @display, :black, "Player 2")
+    if reply == "0"
+      @display = Display.new(@board, true)
+      @player1 = ComputerPlayer.new(@board, @display, :white, "Player 1", self)
+      @currentplayer = @player1
+      @player2 = ComputerPlayer.new(@board, @display, :black, "Player 2", self)
+    elsif reply == "1"
+      @player2 = ComputerPlayer.new(@board, @display, :black, "Player 2", self)
+    elsif reply == "q" || reply == "quit" || reply == "exit"
+      Process.exit(0)
     end
   end
 
@@ -33,6 +41,18 @@ class Game
     end
 
     winner
+  end
+
+  def winner
+    switch_players!
+    system("clear")
+    @display.render
+    if @board.piece_count < 3
+      puts "The game was a draw!"
+    else
+      puts "#{@currentplayer.name} has won!"
+    end
+    Process.exit(0)
   end
 
   private
@@ -49,14 +69,12 @@ class Game
   end
 
   def over?
-    @board.checkmate?(:white) || @board.checkmate?(:black)
-  end
-
-  def winner
-    switch_players!
-    system("clear")
-    @display.render
-    puts "#{@currentplayer.name} has won!"
+    if @board.checkmate?(:white) || @board.checkmate?(:black)
+      return true
+    elsif @board.piece_count < 3
+      return true
+    end
+    false
   end
 
 end

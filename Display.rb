@@ -7,9 +7,11 @@ class Display
   attr_writer :selected_pos
   attr_accessor :stored_moves
 
-  def initialize(board)
+  def initialize(board, ai_game)
     @board = board
-    @cursor = Cursor.new([0, 0], board, self)
+    initial_pos = [0, 0]
+    initial_pos = [-20, -20] if ai_game == true
+    @cursor = Cursor.new(initial_pos, board, self)
     @selected_pos = nil
     @stored_moves = nil
   end

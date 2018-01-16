@@ -45,10 +45,11 @@ class Board
     piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
   end
 
-  def computer_move_piece
-    valid_pieces = get_valid_computer_move_pieces
+  def computer_move_piece(color)
+    valid_pieces = get_valid_computer_move_pieces(color)
     piece_with_best_move = get_best_move(valid_pieces)
     piece_to_move = piece_with_best_move[1]
+    return "forfeit" unless piece_to_move
     start_pos = piece_to_move.pos
     end_pos = piece_with_best_move[2]
 
@@ -57,13 +58,27 @@ class Board
     self[start_pos] = NullPiece.instance
 
     piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+    nil
   end
 
-  def get_valid_computer_move_pieces
+  def any_valid_move(color)
+    valid_pieces = get_valid_computer_move_pieces(color)
+    piece_to_move = valid_pieces.sample
+    start_pos = piece_to_move.pos
+    end_pos = piece_to_move.valid_moves.sample
+
+    piece_to_move.pos = end_pos
+    self[end_pos] = piece_to_move
+    self[start_pos] = NullPiece.instance
+    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+    nil
+  end
+
+  def get_valid_computer_move_pieces(color)
     valid_pieces = []
     @grid.each do |row|
       valid_pieces << row.select do |piece|
-        piece.color == :black && piece.valid_moves.length > 0
+        piece.color == color && piece.valid_moves.length > 0
       end
     end
     valid_pieces.flatten!
@@ -78,7 +93,6 @@ class Board
       end
     end
     best_moves.reject!{ |move| move[0] < best_moves.last[0] }
-    debugger
     return best_moves.sample
   end
 
@@ -95,7 +109,7 @@ class Board
       end
       all_best_point_values << piece_best_point_values
     end
-    all_best_point_values.drop(1)
+    all_best_point_values
   end
 
   def force_move_piece(start_pos, end_pos)
@@ -103,6 +117,7 @@ class Board
     piece_to_move.pos = end_pos
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
+    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
   end
 
   def deep_dup
@@ -120,12 +135,16 @@ class Board
 
   def [](pos)
     x, y = pos
-    @grid[x][y]
+    @grid[x][y] unless @grid[x].nil?
   end
 
   def []=(pos, value)
     x, y = pos
     @grid[x][y] = value
+  end
+
+  def piece_count
+    @grid.flatten.reject!{|piece| piece.class.name == "NullPiece"}.count
   end
 
   def self.in_bounds?(pos)

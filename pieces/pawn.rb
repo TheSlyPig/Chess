@@ -26,9 +26,11 @@ class Pawn < Piece
 
     possible_forward_moves = []
     first_piece, one_forward = check_one_forward(x, y, up_down)
-    two_forward = check_two_forward(x, y, up_down, first_piece)
     possible_forward_moves << one_forward if one_forward
-    possible_forward_moves << two_forward if two_forward
+    if @has_moved != true
+      two_forward = check_two_forward(x, y, up_down, first_piece)
+      possible_forward_moves << two_forward if two_forward
+    end
     possible_forward_moves
   end
 
@@ -43,7 +45,6 @@ class Pawn < Piece
 
   def check_two_forward(x, y, up_down, first_piece)
     two_forward = [x + (2 * up_down), y]
-
     second_piece = @board[two_forward]
     if second_piece.is_a?(NullPiece) && Board.in_bounds?(two_forward) && first_piece.is_a?(NullPiece)
       return two_forward unless @has_moved == true
