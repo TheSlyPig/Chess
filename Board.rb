@@ -70,28 +70,32 @@ class Board
   end
 
   def get_best_move(valid_pieces)
-    best_point_values = get_best_point_values(valid_pieces)
-    best_move = [-1, nil, nil]
-    best_point_values.each do |pv|
-      best_move = pv if pv[0] > best_move[0]
+    all_best_point_values = get_best_point_values(valid_pieces)
+    best_moves = [[-1, nil, nil]]
+    all_best_point_values.each do |piece_best_moves|
+      piece_best_moves.each do |best_move|
+        best_moves.push(best_move) if best_move[0] >= best_moves.last[0]
+      end
     end
-    best_move
+    best_moves.reject!{ |move| move[0] < best_moves.last[0] }
+    debugger
+    return best_moves.sample
   end
 
   def get_best_point_values(valid_pieces)
-    best_point_values = []
+    all_best_point_values = []
     valid_pieces.each do |piece|
       point_values = []
       piece.valid_moves.each do |move_pos|
         point_values << [POINT_VALUES[self[move_pos].class.name.to_sym], piece, move_pos]
       end
-      best_point_value = [-1, nil, nil]
+      piece_best_point_values = [[-1, nil, nil]]
       point_values.each do |pv|
-        best_point_value = pv if pv[0] > best_point_value[0]
+        piece_best_point_values.push(pv) if pv[0] >= piece_best_point_values.last[0]
       end
-      best_point_values << best_point_value
+      all_best_point_values << piece_best_point_values
     end
-    best_point_values
+    all_best_point_values.drop(1)
   end
 
   def force_move_piece(start_pos, end_pos)
