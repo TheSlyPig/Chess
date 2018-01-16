@@ -1,5 +1,6 @@
 require_relative 'display.rb'
 require_relative 'human_player.rb'
+require_relative 'computer_player.rb'
 class Game
 
   def initialize(board)
@@ -10,7 +11,22 @@ class Game
     @currentplayer = @player1
   end
 
+  def setup
+    reply = ""
+    until reply == "1" || reply == "2"
+      system("clear")
+      puts "How many players? (1/2)"
+      reply = gets.chomp
+    end
+
+    if reply == "1"
+      @player2 = ComputerPlayer.new(@board, @display, :black, "Player 2")
+    end
+  end
+
   def run
+    setup
+
     until over?
       take_turn
       switch_players!
@@ -18,6 +34,8 @@ class Game
 
     winner
   end
+
+  private
 
   def take_turn
     @currentplayer.play_turn

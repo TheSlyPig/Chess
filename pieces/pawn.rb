@@ -14,7 +14,6 @@ class Pawn < Piece
 
   def moves
     possible_moves = []
-
     possible_moves += check_forward_moves
     possible_moves += check_attack_moves
 
@@ -26,32 +25,37 @@ class Pawn < Piece
     up_down = self.up_or_down
 
     possible_forward_moves = []
-    one_forward = [x + up_down, y]
-    two_forward = [x + (2 * up_down), y]
+    first_piece, one_forward = check_one_forward(x, y, up_down)
+    two_forward = check_two_forward(x, y, up_down, first_piece)
+    possible_forward_moves << one_forward if one_forward
+    possible_forward_moves << two_forward if two_forward
+    possible_forward_moves
+  end
 
-    #case for moving one space
+  def check_one_forward(x, y, up_down)
+    one_forward = [x + up_down, y]
+
     first_piece = @board[one_forward]
     if first_piece.is_a?(NullPiece) && Board.in_bounds?(one_forward)
-      possible_forward_moves << one_forward
+      return first_piece, one_forward
     end
+  end
 
-    #case for moving two spaces
+  def check_two_forward(x, y, up_down, first_piece)
+    two_forward = [x + (2 * up_down), y]
+
     second_piece = @board[two_forward]
     if second_piece.is_a?(NullPiece) && Board.in_bounds?(two_forward) && first_piece.is_a?(NullPiece)
-      possible_forward_moves << two_forward unless @has_moved == true
+      return two_forward unless @has_moved == true
     end
-
-    possible_forward_moves
   end
 
   def check_attack_moves
     x, y = self.pos
     up_down = self.up_or_down
-
     possible_attack_moves = []
     left_pos = [x + up_down, y - 1]
     right_pos = [x + up_down, y + 1]
-
 
     [left_pos, right_pos].each do |pos|
       other_piece = @board[pos]

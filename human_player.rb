@@ -26,6 +26,8 @@ class HumanPlayer
     end
   end
 
+  private
+
   def handle_rendering
     system("clear")
     @display.render

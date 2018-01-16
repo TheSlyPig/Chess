@@ -1,7 +1,6 @@
 module SteppingPiece
   def moves
     possible_moves = []
-
     steps = self.get_steps
 
     steps.each do |step|
@@ -10,7 +9,6 @@ module SteppingPiece
       new_pos = [start_x + dx, start_y + dy]
       possible_moves << new_pos
     end
-
 
     possible_moves.select do |move|
       Board.in_bounds?(move) && !self.friendly?(@board[move])

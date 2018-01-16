@@ -5,41 +5,20 @@ class ChessError < StandardError; end
 class PieceNotFoundError < ChessError; end
 class InvalidMoveError < ChessError; end
 
+POINT_VALUES ||= {
+  NullPiece: 0,
+  Pawn: 1,
+  Knight: 3,
+  Bishop: 3,
+  Rook: 5,
+  Queen: 9,
+  King: 99
+}
+
 class Board
 
-  def make_special_row(color)
-    top_bot = color == :black ? 0 : 7
-    [
-      Rook.new(self, [top_bot, 0], color),
-      Knight.new(self, [top_bot, 1], color),
-      Bishop.new(self, [top_bot, 2], color),
-      Queen.new(self, [top_bot, 3], color),
-      King.new(self, [top_bot, 4], color),
-      Bishop.new(self, [top_bot, 5], color),
-      Knight.new(self, [top_bot, 6], color),
-      Rook.new(self, [top_bot, 7], color)
-    ]
-  end
-
-
-  def make_pawn_row(color)
-    top_bot = color == :black ? 1 : 6
-    [
-      Pawn.new(self, [top_bot, 0], color),
-      Pawn.new(self, [top_bot, 1], color),
-      Pawn.new(self, [top_bot, 2], color),
-      Pawn.new(self, [top_bot, 3], color),
-      Pawn.new(self, [top_bot, 4], color),
-      Pawn.new(self, [top_bot, 5], color),
-      Pawn.new(self, [top_bot, 6], color),
-      Pawn.new(self, [top_bot, 7], color)
-    ]
-  end
-
   def initialize
-
     nil_row = Array.new(8) { NullPiece.instance }
-
     @grid = [
       self.make_special_row(:black),
       self.make_pawn_row(:black),
@@ -64,7 +43,55 @@ class Board
     self[start_pos] = NullPiece.instance
 
     piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+  end
 
+  def computer_move_piece
+    valid_pieces = get_valid_computer_move_pieces
+    piece_with_best_move = get_best_move(valid_pieces)
+    piece_to_move = piece_with_best_move[1]
+    start_pos = piece_to_move.pos
+    end_pos = piece_with_best_move[2]
+
+    piece_to_move.pos = end_pos
+    self[end_pos] = piece_to_move
+    self[start_pos] = NullPiece.instance
+
+    piece_to_move.has_moved if piece_to_move.is_a?(Pawn)
+  end
+
+  def get_valid_computer_move_pieces
+    valid_pieces = []
+    @grid.each do |row|
+      valid_pieces << row.select do |piece|
+        piece.color == :black && piece.valid_moves.length > 0
+      end
+    end
+    valid_pieces.flatten!
+  end
+
+  def get_best_move(valid_pieces)
+    best_point_values = get_best_point_values(valid_pieces)
+    best_move = [-1, nil, nil]
+    best_point_values.each do |pv|
+      best_move = pv if pv[0] > best_move[0]
+    end
+    best_move
+  end
+
+  def get_best_point_values(valid_pieces)
+    best_point_values = []
+    valid_pieces.each do |piece|
+      point_values = []
+      piece.valid_moves.each do |move_pos|
+        point_values << [POINT_VALUES[self[move_pos].class.name.to_sym], piece, move_pos]
+      end
+      best_point_value = [-1, nil, nil]
+      point_values.each do |pv|
+        best_point_value = pv if pv[0] > best_point_value[0]
+      end
+      best_point_values << best_point_value
+    end
+    best_point_values
   end
 
   def force_move_piece(start_pos, end_pos)
@@ -73,7 +100,6 @@ class Board
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
   end
-
 
   def deep_dup
     board_dup = Board.new
@@ -133,8 +159,9 @@ class Board
         kings << piece if piece.is_a?(King)
       end
     end
-
-    return kings.select { |king| king.color == color }.first.pos
+    foundKing = kings.select { |king| king.color == color }.first
+    return foundKing.pos if foundKing
+    [-1, -1]
   end
 
   def get_enemy_moves(color)
@@ -149,7 +176,37 @@ class Board
     return enemy_moves
   end
 
-
   protected
+
   attr_writer :grid
+
+  def make_special_row(color)
+    top_bot = color == :black ? 0 : 7
+    [
+      Rook.new(self, [top_bot, 0], color),
+      Knight.new(self, [top_bot, 1], color),
+      Bishop.new(self, [top_bot, 2], color),
+      Queen.new(self, [top_bot, 3], color),
+      King.new(self, [top_bot, 4], color),
+      Bishop.new(self, [top_bot, 5], color),
+      Knight.new(self, [top_bot, 6], color),
+      Rook.new(self, [top_bot, 7], color)
+    ]
+  end
+
+
+  def make_pawn_row(color)
+    top_bot = color == :black ? 1 : 6
+    [
+      Pawn.new(self, [top_bot, 0], color),
+      Pawn.new(self, [top_bot, 1], color),
+      Pawn.new(self, [top_bot, 2], color),
+      Pawn.new(self, [top_bot, 3], color),
+      Pawn.new(self, [top_bot, 4], color),
+      Pawn.new(self, [top_bot, 5], color),
+      Pawn.new(self, [top_bot, 6], color),
+      Pawn.new(self, [top_bot, 7], color)
+    ]
+  end
+
 end

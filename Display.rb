@@ -14,34 +14,6 @@ class Display
     @stored_moves = nil
   end
 
-  def get_square_color(pos, i, j)
-    square_color = get_default_color(pos, i, j)
-    @stored_moves = @board[@selected_pos].valid_moves if @cursor.selected && @stored_moves.nil?
-
-    unless @stored_moves.nil?
-      square_color = :green if @stored_moves.include?(pos)
-    end
-
-    if @cursor.cursor_pos == pos
-      @cursor.selected ? square_color = :red : square_color = :magenta
-    end
-    return square_color
-  end
-
-  def get_default_color(pos, i, j)
-    if i % 2 == 0
-      if j % 2 != 0
-        square_color = :light_black
-      else
-        square_color = :blue
-      end
-    elsif j % 2 == 0
-      square_color = :light_black
-    else
-      square_color = :blue
-    end
-    return square_color
-  end
 
   def render
     image = []
@@ -58,6 +30,40 @@ class Display
       image << row_image
     end
     puts image.join("\n")
+  end
+
+  private
+
+  def get_square_color(pos, i, j)
+    square_color = get_default_color(pos, i, j)
+    refresh_stored_moves
+    unless @stored_moves.nil?
+      square_color = :green if @stored_moves.include?(pos)
+    end
+
+    if @cursor.cursor_pos == pos
+      @cursor.selected ? square_color = :red : square_color = :magenta
+    end
+    return square_color
+  end
+
+  def refresh_stored_moves
+    @stored_moves = @board[@selected_pos].valid_moves if @cursor.selected && @stored_moves.nil?
+  end
+
+  def get_default_color(pos, i, j)
+    if i % 2 == 0
+      if j % 2 != 0
+        square_color = :light_black
+      else
+        square_color = :blue
+      end
+    elsif j % 2 == 0
+      square_color = :light_black
+    else
+      square_color = :blue
+    end
+    return square_color
   end
 
 end
