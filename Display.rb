@@ -14,8 +14,15 @@ class Display
     @stored_moves = nil
   end
 
-  def get_square_color(pos)
-    square_color = :light_black
+  def get_square_color(pos, i, j)
+    if i % 2 == 0
+      if j % 2 != 0
+        square_color = :light_black
+      end
+    elsif j % 2 == 0
+      square_color = :light_black
+    end
+
     if @cursor.selected && @stored_moves.nil?
       @stored_moves = @board[@selected_pos].valid_moves
     end
@@ -42,8 +49,8 @@ class Display
         pos = [i, j]
         piece_string = @board[pos].to_s
 
-        square_color = get_square_color(pos)
-        row_image << piece_string.colorize( :background => square_color) + " ".colorize( :background => :light_black)
+        square_color = get_square_color(pos, i, j)
+        row_image << " ".colorize( :background => square_color) + piece_string.colorize( :background => square_color) + " ".colorize( :background => square_color)
       end
       image << row_image
     end
