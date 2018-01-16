@@ -47,8 +47,8 @@ class Board
 
   def computer_move_piece(color)
     valid_pieces = get_valid_computer_move_pieces(color)
-    piece_with_best_move = get_best_move(valid_pieces)
-    piece_to_move = piece_with_best_move[1]
+    piece_with_best_move = get_best_move(valid_pieces, color)
+    piece_to_move = piece_with_best_move[1] if piece_with_best_move
     return "forfeit" unless piece_to_move
     start_pos = piece_to_move.pos
     end_pos = piece_with_best_move[2]
@@ -84,7 +84,7 @@ class Board
     valid_pieces.flatten!
   end
 
-  def get_best_move(valid_pieces)
+  def get_best_move(valid_pieces, color)
     all_best_point_values = get_best_point_values(valid_pieces)
     best_moves = [[-1, nil, nil]]
     all_best_point_values.each do |piece_best_moves|
@@ -93,7 +93,20 @@ class Board
       end
     end
     best_moves.reject!{ |move| move[0] < best_moves.last[0] }
+    best_moves = filter_by_enemy_moves(best_moves, color)
     return best_moves.sample
+  end
+
+  def filter_by_enemy_moves(best_moves, color)
+    best_moves.reject! do |move|
+      next unless move[1]
+      board_dup = self.deep_dup
+      board_dup.force_move_piece(move[1].pos, move[2])
+      enemy_moves = get_enemy_moves(board_dup, color)
+      self_value = POINT_VALUES[move[1].class.name.to_sym]
+      enemy_moves.include?(move[2]) && self_value > move[0]
+    end
+    best_moves
   end
 
   def get_best_point_values(valid_pieces)
@@ -122,7 +135,6 @@ class Board
 
   def deep_dup
     board_dup = Board.new
-
     dup_grid = @grid.map do |row|
       row.map do |piece|
         piece.dup_with_new_board(board_dup)
@@ -187,9 +199,9 @@ class Board
     [-1, -1]
   end
 
-  def get_enemy_moves(color)
+  def get_enemy_moves(board = self, color)
     enemy_moves = []
-    @grid.each do |row|
+    board.grid.each do |row|
       row.each do |piece|
         if piece.color != color
           enemy_moves.concat(piece.moves)
@@ -201,7 +213,7 @@ class Board
 
   protected
 
-  attr_writer :grid
+  attr_accessor :grid
 
   def pawn_actions(piece)
     if piece.is_a?(Pawn)
