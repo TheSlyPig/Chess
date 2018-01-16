@@ -15,7 +15,7 @@ class ComputerPlayer
   def play_turn
     loop do
       handle_rendering
-      sleep(0.03)
+      sleep(0.55)
       forfeit = "forfeit"
       tries = 0
       while forfeit == "forfeit" && tries < 10
