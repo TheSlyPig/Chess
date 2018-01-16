@@ -12,6 +12,7 @@ The AI uses a point-value system to determine what move to make, based on the re
 
 ## Advanced Features
 
+* Pawns can move 2 spaces if they haven't moved yet ✓
 * Show valid moves on piece selection ✓
 * Pawn promotion ✓
 * Castling ☓
