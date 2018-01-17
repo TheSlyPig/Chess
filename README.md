@@ -2,6 +2,8 @@
 
 Play chess against a friend or a computer opponent, or simply watch two AI players battle to the death. Built using Ruby.
 
+![Chess Gameplay](/screenshots/ai-game.gif)
+
 ## How to play
 
 The game is console-based, so in order to play you'll need to clone this repository, open up a terminal window, navigate to the game's folder, type 'bundle install', and then type 'Ruby chess.rb'.
