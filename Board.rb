@@ -64,6 +64,7 @@ class Board
   def any_valid_move(color)
     valid_pieces = get_valid_computer_move_pieces(color)
     piece_to_move = valid_pieces.sample
+    return unless piece_to_move
     start_pos = piece_to_move.pos
     end_pos = piece_to_move.valid_moves.sample
 
@@ -85,7 +86,7 @@ class Board
   end
 
   def get_best_move(valid_pieces, color)
-    all_best_point_values = get_best_point_values(valid_pieces)
+    all_best_point_values = get_best_point_values(valid_pieces, color)
     best_moves = [[-1, nil, nil]]
     all_best_point_values.each do |piece_best_moves|
       piece_best_moves.each do |best_move|
@@ -93,36 +94,51 @@ class Board
       end
     end
     best_moves.reject!{ |move| move[0] < best_moves.last[0] }
-    best_moves = filter_by_enemy_moves(best_moves, color)
     return best_moves.sample
   end
 
-  def filter_by_enemy_moves(best_moves, color)
-    best_moves.reject! do |move|
-      next unless move[1]
-      board_dup = self.deep_dup
-      board_dup.force_move_piece(move[1].pos, move[2])
-      enemy_moves = get_enemy_moves(board_dup, color)
-      self_value = POINT_VALUES[move[1].class.name.to_sym]
-      enemy_moves.include?(move[2]) && self_value > move[0]
+  def filter_by_enemy_moves(move, color)
+    return nil unless move[1]
+    board_dup = self.deep_dup
+    board_dup.force_move_piece(move[1].pos, move[2])
+    enemy_moves = get_enemy_moves(board_dup, color)
+    self_value = POINT_VALUES[move[1].class.name.to_sym]
+    other_color = (color == :white ? :black : :white)
+    return 100 if board_dup.checkmate?(other_color)
+    if enemy_moves.include?(move[2]) && self_value > move[0]
+      return nil
+    else
+      return 2 if board_dup.in_check?(other_color)
     end
-    best_moves
   end
 
-  def get_best_point_values(valid_pieces)
+  def get_best_point_values(valid_pieces, color)
     all_best_point_values = []
     valid_pieces.each do |piece|
       point_values = []
       piece.valid_moves.each do |move_pos|
         point_values << [POINT_VALUES[self[move_pos].class.name.to_sym], piece, move_pos]
       end
-      piece_best_point_values = [[-1, nil, nil]]
-      point_values.each do |pv|
-        piece_best_point_values.push(pv) if pv[0] >= piece_best_point_values.last[0]
-      end
+      piece_best_point_values = filter_best_point_values(point_values, color)
       all_best_point_values << piece_best_point_values
     end
     all_best_point_values
+  end
+
+  def filter_best_point_values(point_values, color)
+    piece_best_point_values = [[-1, nil, nil]]
+    point_values.each do |pv|
+      filter_result = filter_by_enemy_moves(pv, color)
+      pv[0] += 100 if filter_result == 100
+
+      if !filter_result.nil?
+        if pv[0] >= piece_best_point_values.last[0]
+          pv[0] += [0, 1].sample if filter_result == 2
+          piece_best_point_values.push(pv)
+        end
+      end
+    end
+    piece_best_point_values
   end
 
   def force_move_piece(start_pos, end_pos)
@@ -140,7 +156,6 @@ class Board
         piece.dup_with_new_board(board_dup)
       end
     end
-
     board_dup.grid = dup_grid
     board_dup
   end
