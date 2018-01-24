@@ -40,11 +40,11 @@ class Board
     end
     piece_to_move.pos = end_pos
     self.castling_actions(start_pos, end_pos, piece_to_move)
-    self[end_pos] = piece_to_move
-    self[start_pos] = NullPiece.instance
     if piece_to_move.is_a?(King) || piece_to_move.is_a?(Rook)
       piece_to_move.has_moved = true
     end
+    self[end_pos] = piece_to_move
+    self[start_pos] = NullPiece.instance
     pawn_actions(piece_to_move)
   end
 
@@ -86,8 +86,11 @@ class Board
     return "forfeit" unless piece_to_move
     start_pos = piece_to_move.pos
     end_pos = piece_with_best_move[2]
-
     piece_to_move.pos = end_pos
+    self.castling_actions(start_pos, end_pos, piece_to_move)
+    if piece_to_move.is_a?(King) || piece_to_move.is_a?(Rook)
+      piece_to_move.has_moved = true
+    end
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
 
