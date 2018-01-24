@@ -3,11 +3,12 @@ require 'byebug'
 
 class Piece
   attr_reader :color, :symbol
-  attr_accessor :pos
+  attr_accessor :pos, :has_moved
   def initialize(board, pos, color = nil)
     @board = board
     @pos = pos
     @color = color
+    @has_moved = false
   end
 
   def self.increment_pos(pos, incr)

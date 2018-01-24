@@ -3,6 +3,7 @@ require_relative 'slideable'
 
 class Rook < Piece
   include SlidingPiece
+  attr_accessor :has_moved
 
   def move_dirs
     [:horizontal, :vertical]

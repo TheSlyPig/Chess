@@ -39,10 +39,44 @@ class Board
       raise InvalidMoveError
     end
     piece_to_move.pos = end_pos
+    self.castling_actions(start_pos, end_pos, piece_to_move)
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
-
+    if piece_to_move.is_a?(King) || piece_to_move.is_a?(Rook)
+      piece_to_move.has_moved = true
+    end
     pawn_actions(piece_to_move)
+  end
+
+  def castling_actions(start_pos, end_pos, piece_to_move)
+    if self[start_pos].color == :white && start_pos == [7, 4]
+      if end_pos == [7, 6] && piece_to_move.is_a?(King) && piece_to_move.can_castle
+        self.force_move_piece([7, 7], [7, 5])
+      end
+    elsif start_pos == [0, 4]
+      if end_pos == [0, 6] && piece_to_move.is_a?(King) && piece_to_move.can_castle
+        self.force_move_piece([0, 7], [0, 5])
+      end
+    end
+  end
+
+  def force_move_piece(start_pos, end_pos)
+    piece_to_move = self[start_pos]
+    piece_to_move.pos = end_pos
+    self[end_pos] = piece_to_move
+    self[start_pos] = NullPiece.instance
+    pawn_actions(piece_to_move)
+  end
+
+  def deep_dup
+    board_dup = Board.new
+    dup_grid = @grid.map do |row|
+      row.map do |piece|
+        piece.dup_with_new_board(board_dup)
+      end
+    end
+    board_dup.grid = dup_grid
+    board_dup
   end
 
   def computer_move_piece(color)
@@ -139,25 +173,6 @@ class Board
       end
     end
     piece_best_point_values
-  end
-
-  def force_move_piece(start_pos, end_pos)
-    piece_to_move = self[start_pos]
-    piece_to_move.pos = end_pos
-    self[end_pos] = piece_to_move
-    self[start_pos] = NullPiece.instance
-    pawn_actions(piece_to_move)
-  end
-
-  def deep_dup
-    board_dup = Board.new
-    dup_grid = @grid.map do |row|
-      row.map do |piece|
-        piece.dup_with_new_board(board_dup)
-      end
-    end
-    board_dup.grid = dup_grid
-    board_dup
   end
 
   def [](pos)
