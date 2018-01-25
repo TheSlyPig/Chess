@@ -134,21 +134,6 @@ class Board
     return best_moves.sample
   end
 
-  def filter_by_enemy_moves(move, color)
-    return nil unless move[1]
-    board_dup = self.deep_dup
-    board_dup.force_move_piece(move[1].pos, move[2])
-    enemy_moves = get_enemy_moves(board_dup, color)
-    self_value = POINT_VALUES[move[1].class.name.to_sym]
-    other_color = (color == :white ? :black : :white)
-    return 100 if board_dup.checkmate?(other_color)
-    if enemy_moves.include?(move[2]) && self_value > move[0]
-      return nil
-    else
-      return 2 if board_dup.in_check?(other_color)
-    end
-  end
-
   def get_best_point_values(valid_pieces, color)
     all_best_point_values = []
     valid_pieces.each do |piece|
@@ -167,7 +152,6 @@ class Board
     point_values.each do |pv|
       filter_result = filter_by_enemy_moves(pv, color)
       pv[0] += 100 if filter_result == 100
-
       if !filter_result.nil?
         if pv[0] >= piece_best_point_values.last[0]
           pv[0] += [0, 1].sample if filter_result == 2
@@ -176,6 +160,22 @@ class Board
       end
     end
     piece_best_point_values
+  end
+
+  def filter_by_enemy_moves(move, color)
+    return nil unless move[1]
+    board_dup = self.deep_dup
+    board_dup.force_move_piece(move[1].pos, move[2])
+    enemy_moves = get_enemy_moves(board_dup, color)
+    self_value = POINT_VALUES[move[1].class.name.to_sym]
+    other_color = (color == :white ? :black : :white)
+    return 100 if board_dup.checkmate?(other_color)
+    if enemy_moves.include?(move[2]) && self_value > move[0]
+      return nil
+    else
+      return 2 if board_dup.in_check?(other_color)
+      return 1
+    end
   end
 
   def [](pos)
