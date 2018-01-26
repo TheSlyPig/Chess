@@ -18,6 +18,6 @@ The AI uses a point-value system to determine what move to make, based on the re
 * Show valid moves on piece selection ✓
 * Pawn promotion ✓
 * Castling ✓
-* En passant ☓
+* En passant ✓
 
 ![Chess Gameplay](/screenshots/chess.gif)
