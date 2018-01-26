@@ -3,8 +3,11 @@ require_relative 'stepable'
 
 class Pawn < Piece
 
+  attr_accessor :en_passantable
+
   def initialize(board, pos, color = nil)
     @has_moved = false
+    @en_passantable = false
     super
   end
 
@@ -73,7 +76,7 @@ class Pawn < Piece
     possible_attack_moves = []
     left_pos = [x + up_down, y - 1]
     right_pos = [x + up_down, y + 1]
-
+    possible_attack_moves = check_en_passant(possible_attack_moves, up_down, x, y)
     [left_pos, right_pos].each do |pos|
       other_piece = @board[pos]
       unless !Board.in_bounds?(pos) || other_piece.is_a?(NullPiece) || self.friendly?(other_piece)
@@ -81,6 +84,22 @@ class Pawn < Piece
       end
     end
 
+    possible_attack_moves
+  end
+
+  def check_en_passant(possible_attack_moves, up_down, x, y)
+    enemy_left_pos = [x, y - 1]
+    enemy_right_pos = [x, y + 1]
+    [enemy_left_pos, enemy_right_pos].each do |pos|
+      other_piece = @board[pos]
+      unless !Board.in_bounds?(pos) ||
+              !other_piece.is_a?(Pawn) ||
+              self.friendly?(other_piece) ||
+              !other_piece.en_passantable
+        pos[0] += up_down
+        possible_attack_moves << pos
+      end
+    end
     possible_attack_moves
   end
 

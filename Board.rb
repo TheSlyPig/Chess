@@ -45,7 +45,7 @@ class Board
     end
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
-    pawn_actions(piece_to_move)
+    pawn_actions(piece_to_move, start_pos, end_pos)
   end
 
   def castling_actions(start_pos, end_pos, piece_to_move)
@@ -65,7 +65,7 @@ class Board
     piece_to_move.pos = end_pos
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
-    pawn_actions(piece_to_move)
+    pawn_actions(piece_to_move, start_pos, end_pos)
   end
 
   def deep_dup
@@ -94,7 +94,7 @@ class Board
     self[end_pos] = piece_to_move
     self[start_pos] = NullPiece.instance
 
-    pawn_actions(piece_to_move)
+    pawn_actions(piece_to_move, start_pos, end_pos)
     nil
   end
 
@@ -248,10 +248,30 @@ class Board
 
   attr_accessor :grid
 
-  def pawn_actions(piece)
+  def pawn_actions(piece, start_pos, end_pos)
     if piece.is_a?(Pawn)
+      piece.en_passantable = false
+      destroy_if_en_passant(start_pos, piece)
+      if (start_pos[0] - end_pos[0]).abs > 1
+        piece.en_passantable = true
+      end
       piece.has_moved
       piece.check_promotion
+    end
+  end
+
+  def destroy_if_en_passant(start_pos, piece)
+    x, y = start_pos
+    enemy_left_pos = [x, y - 1]
+    enemy_right_pos = [x, y + 1]
+    [enemy_left_pos, enemy_right_pos].each do |pos|
+      other_piece = self[pos]
+      unless !Board.in_bounds?(pos) ||
+              !other_piece.is_a?(Pawn) ||
+              piece.friendly?(other_piece) ||
+              !other_piece.en_passantable
+        self[pos] = NullPiece.instance
+      end
     end
   end
 
